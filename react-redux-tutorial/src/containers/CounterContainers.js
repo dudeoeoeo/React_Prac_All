@@ -13,7 +13,12 @@ const CounterContainers = () => {
     const number = useSelector(state => (
         state.counter.number
     ));
+    const todos = useSelector(state => (
+        state.todos.todos
+    ))
+    console.log("CounterContainers : " + JSON.stringify(todos));
     const dispatch = useDispatch();
+    console.log("dispatch: " + JSON.stringify(dispatch));
     const onIncrease = useCallback(() => dispatch(increase()), [dispatch]);
     const onDecrease = useCallback(() => dispatch(decrease()), [dispatch]);
     return (
