@@ -5,8 +5,8 @@ import SampleContainer from './containers/SampleContainer';
 
 function App() {
   return (
-    // <CounterContainer />
-    <SampleContainer />
+    <CounterContainer />
+    // <SampleContainer />
   );
 }
 
