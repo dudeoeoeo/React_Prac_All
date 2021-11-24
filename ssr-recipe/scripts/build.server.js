@@ -20,12 +20,14 @@ function build() {
     let compiler = webpack(config);
 
     return new Promise((resolve, reject) => {
-      compiler.run((err, stats) => {
+        compiler.run((err, stats) => {
         if (err) {
             console.log(err);
             return;
         }; 
         console.log(stats.toString());
-      });
+        });
     });
-  }
+}
+
+build();
