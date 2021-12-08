@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "joi": "^17.5.0",
     "koa-bodyparser": "^4.3.0"
   }
 }
