@@ -4,6 +4,15 @@ import Joi from 'joi';
 
 const { ObjectId } = mongoose.Types;
 
+export const checkOwnPost = (ctx, next) => {
+    const { user, post } = ctx.state;
+    if (post.user._id.toString() !== user._id) {
+        ctx.status = 403;
+        return;
+    }
+    return next();
+}
+
 export const checkObjectId = (ctx, next) => {
     const { id } = ctx.params;
     if(!ObjectId.isValid(id)) {
@@ -12,6 +21,26 @@ export const checkObjectId = (ctx, next) => {
     }
     return next();
 };
+
+export const getPostById = async (ctx, next) => {
+    const { id } = ctx.params;
+    if (!ObjectId.isValid(id)) {
+        ctx.status = 400; // Bad Request
+        return;
+    }
+    try {
+        const post = await Post.findById(id);
+        // 포스트가 존재하지 않을 때
+        if (!post) {
+            ctx.status = 404;
+            return;
+        }
+        ctx.state.post = post;
+        return next();
+    } catch (e) {
+        ctx.throw(500, e);
+    }
+}
 
 export const write = async ctx => {
     const schema = Joi.object().keys({
@@ -36,6 +65,7 @@ export const write = async ctx => {
         title,
         body,
         tags,
+        user: ctx.state.user,
     });
     try {
         await post.save();
@@ -45,6 +75,9 @@ export const write = async ctx => {
     }
 };
 
+/*
+    GET /api/posts?username=&tag=&page=
+*/
 export const list = async ctx => {
     // query는 문자열이기 때문에 숫자로 변환해 주어야 한다.
     // 값이 주어지지 않았다면 1을 기본으로 사용한다.
@@ -54,16 +87,23 @@ export const list = async ctx => {
         ctx.status = 400;
         return;
     }
+    const { tag, username } = ctx.query;
+
+    // tag, username 값이 유효하다면 객체 안에 넣고, 그렇지 않으면 넣지 않는다.
+    const query = {
+        ...(username ? {'user.username': username} : {}),
+        ...(tag ? {tags: tag} : {}),
+    }
 
     try {
         // const posts = await Post.find().exec();
-        const posts = await Post.find()
+        const posts = await Post.find(query)
             .sort({ _id: -1 })
             .limit(10)
             .skip((page - 1) * 10)
             .lean()
             .exec();
-        const postCount = await Post.countDocuments().exec();
+        const postCount = await Post.countDocuments(query).exec();
         ctx.set('Last-Page', Math.ceil(postCount / 10));
         ctx.body = posts
             // .map(post => post.toJSON())
@@ -78,17 +118,18 @@ export const list = async ctx => {
 };
 
 export const read = async ctx => {
-    const { id } = ctx.params;
-    try {
-        const post = await Post.findById(id).exec();
-        if(!post) {
-            ctx.status = 404;
-            return;
-        }
-        ctx.body = post;
-    } catch (e) {
-        ctx.throw(500, e);
-    }
+    ctx.body = ctx.state.post;
+    // const { id } = ctx.params;
+    // try {
+    //     const post = await Post.findById(id).exec();
+    //     if(!post) {
+    //         ctx.status = 404;
+    //         return;
+    //     }
+    //     ctx.body = post;
+    // } catch (e) {
+    //     ctx.throw(500, e);
+    // }
 };
 
 export const remove = async ctx => {
