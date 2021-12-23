@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import Button from './Button';
 import Responsive from './Responsive';
@@ -32,15 +33,29 @@ const Spacer = styled.div`
     height: 4rem;
 `;
 
-const Header = () => {
+const UserInfo = styled.div`
+    font-weight: 800;
+    margin-right: 1rem;
+`;
+
+const Header = ({ user, onLogout }) => {
     return (
         <>
             <HeaderBlock>
                 <Wrapper>
-                    <div className="logo">REACTERS</div>
+                    <Link to="/" className="logo">
+                        REACTERS
+                    </Link>
+                {user ? (
+                    <div className="right">
+                        <UserInfo>{user.username}</UserInfo>
+                        <Button onClick={onLogout}>로그아웃</Button>    
+                    </div> 
+                ) : (
                     <div className="right">
                         <Button>로그인</Button>    
-                    </div>    
+                    </div> 
+                )}   
                 </Wrapper> 
             </HeaderBlock>
             <Spacer />   
