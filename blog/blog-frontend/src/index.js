@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { BrowserRouter } from '../node_modules/react-router-dom/index';
+import { BrowserRouter } from 'react-router-dom';
 import { applyMiddleware, createStore } from 'redux';
 import rootReducer, { rootSaga } from './modules/index';
 import { composeWithDevTools } from '../node_modules/redux-devtools-extension/index';
