@@ -5,7 +5,7 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { applyMiddleware, createStore } from 'redux';
 import rootReducer, { rootSaga } from './modules/index';
-import { composeWithDevTools } from '../node_modules/redux-devtools-extension/index';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga';
 import { check, tempSetUser } from './modules/user';
