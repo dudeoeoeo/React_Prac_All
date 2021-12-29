@@ -1,13 +1,12 @@
 import React from 'react';
-import Button from '../components/common/Button';
-import PostViewer from '../components/post/PostViewer';
 import HeaderContainer from '../comtainers/common/HeaderContainer';
+import PostViewerContainer from '../comtainers/post/PostViewerContainer';
 
 const PostPage = () => {
     return (
         <>
             <HeaderContainer />
-            <PostViewer />
+            <PostViewerContainer />
         </>
     );
 };

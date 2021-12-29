@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import palette from '../../lib/styles/palette';
 import Responsive from '../common/Responsive';
+import SubInfo from '../common/SubInfo';
+import Tags from '../common/Tags';
 
 const PostViewerBlock = styled(Responsive)`
     margin-top: 4rem;
@@ -18,57 +20,34 @@ const PostHead = styled.div`
     }
 `;
 
-const SubInfo = styled.div`
-    margin-top: 1rem;
-    color: ${palette.gray[6]};
-
-    // span 사이에 가운뎃점 문자 보기
-    span + span:before {
-        color: ${palette.gray[5]};
-        padding-left: 0.25rem;
-        padding-right: 0.25rem;
-        content: '\\B7'; // 가운뎃점 문자
-    }
-`;
-
-const Tags = styled.div`
-    margin-top: 0.5rem;
-    .tag {
-        display: inline-block;
-        color: ${palette.cyan[7]};
-        text-decoration: none;
-        margin-right: 0.5rem;
-
-        &:hover {
-            color: ${palette.cyan[6]};
-        }
-    }
-`;
-
 const PostContent = styled.div`
     font-size: 1.3125rem;
     color: ${palette.gray[8]};
 `;
 
-const PostViewer = () => {
+const PostViewer = ({ post, loading, error }) => {
+    // 에러 발생 시
+    if (error) {
+        if (error.response && error.response.status === 404) {
+            return <PostViewerBlock>존재하지 않는 포스팅입니다.</PostViewerBlock>
+        }
+        return <PostViewerBlock>오류</PostViewerBlock>
+    }
+
+    // loading 중이거나 아직 포스트 데이터가 없을 때
+    if (loading || null) {
+        return null;
+    }
+    const { title, body, user, publishedDate, tags } = post;
     return (
         <PostViewerBlock>
             <PostHead>
-                <h1>제목</h1>
-                <SubInfo>
-                    <span>
-                        <b>tester</b>
-                    </span>
-                    <span>{new Date().toLocaleDateString()}</span>
-                </SubInfo>
-                <Tags>
-                    <div className="tag">#태그1</div>
-                    <div className="tag">#태그2</div>
-                    <div className="tag">#태그3</div>
-                </Tags>
+                <h1>{title}</h1>
+                <SubInfo username={user.username} publishedDate={publishedDate} hasMarginTop />
+                <Tags tags={tags} />
             </PostHead>
             <PostContent
-                dangerouslySetInnerHTML={{ __html: '<p>HTML <b>내용</b>입니다.</p>'}}
+                dangerouslySetInnerHTML={{ __html: body}}
             />
         </PostViewerBlock>
     );
