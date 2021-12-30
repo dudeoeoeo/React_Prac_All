@@ -1,12 +1,12 @@
 import React from 'react';
-import PostList from '../components/posts/PostList';
 import HeaderContainer from '../comtainers/common/HeaderContainer';
+import PostListContainer from '../comtainers/posts/PostListContainer';
 
 const PostListPage = () => {
     return (
         <>
             <HeaderContainer />
-            <PostList />
+            <PostListContainer />
         </>
     );
 };
