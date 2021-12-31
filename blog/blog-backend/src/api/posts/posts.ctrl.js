@@ -1,8 +1,33 @@
 import mongoose from 'mongoose';
 import Post from '../../modules/post';
 import Joi from 'joi';
+import sanitizeHtml from 'sanitize-html';
 
 const { ObjectId } = mongoose.Types;
+
+const sanitizeOption = {
+    allowedTags: [
+        'h1',
+        'h2',
+        'b',
+        'i',
+        'u',
+        's',
+        'p',
+        'ul',
+        'ol',
+        'li',
+        'blockquote',
+        'a',
+        'img',
+    ],
+    allowedAttributes: {
+        a: ['href', 'name', 'target'],
+        img: ['src'],
+        li: ['class'],
+    },
+    allowedSchemes: ['data', 'http'],
+};
 
 export const checkOwnPost = (ctx, next) => {
     const { user, post } = ctx.state;
@@ -46,7 +71,7 @@ export const write = async ctx => {
     const schema = Joi.object().keys({
         // 객체가 다음 필드를 가지고 있음을 검증
         title: Joi.string().required(), // required() 가 있으면 필수 항목
-        body: Joi.string().required(), 
+        body: sanitizeHtml(body, sanitizeOption), // Joi.string().required(), 
         tags: Joi.array()
             .items(Joi.string())
             .required(), // 문자열로 이루어진 배열
@@ -74,6 +99,14 @@ export const write = async ctx => {
         ctx.throw(500, e);
     }
 };
+
+// html을 없애고 내용이 너무 길면 200자로 제한하는 함수
+const removeHtmlAndShorten = body => {
+    const filtered = sanitizeHtml(body, {
+        allowedTags: [],
+    });
+    return filtered.length < 200 ? filtered : `${filtered.slice(0, 200)}...`;
+}
 
 /*
     GET /api/posts?username=&tag=&page=
@@ -109,8 +142,8 @@ export const list = async ctx => {
             // .map(post => post.toJSON())
             .map(post => ({
                 ...post,
-                body:
-                    post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
+                body: removeHtmlAndShorten(post.body),
+                    // post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
             }));
     } catch (e) {
         ctx.throw(500, e);
@@ -157,6 +190,11 @@ export const update = async ctx => {
         ctx.status = 400;
         ctx.body = result.error;
         return;
+    }
+    const nextData = { ...ctx.request.body }; // 객체를 복사하고
+    // body 값이 주어졌으면 HTML 필터링
+    if (nextData.body) {
+        nextData.body = sanitizeHtml(nextData.body, sanitizeOption);
     }
     try {
         const post = await Post.findByIdAndUpdate(id, ctx.request.body, {
