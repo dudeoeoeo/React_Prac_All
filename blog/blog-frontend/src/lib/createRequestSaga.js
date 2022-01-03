@@ -19,6 +19,9 @@ export default function createRequestSaga(type, request) {
             yield put({
                 type: SUCCESS,
                 payload: response.data,
+                // action 안에 meta 값을 response 로 넣어 주면
+                // 나중에 HTTP 헤더 및 상태 코드를 쉽게 조회 가능하다.
+                meta: response,
             });
         } catch (e) {
             yield put({
