@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { withRouter } from 'react-router';
 import PostActionButtons from '../../components/post/PostActionButtons';
 import PostViewer from '../../components/post/PostViewer';
+import { removePost } from '../../lib/api/posts';
 import { readPost, unloadPost } from '../../modules/post';
 import { setOriginalPost } from '../../modules/write';
 
@@ -31,6 +32,15 @@ const PostViewerContainer = ({ match, history }) => {
         history.push('/write');
     }
 
+    const onRemove = async () => {
+        try {
+            await removePost(postId);
+            history.push('/');
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     const ownPost = (user && user._id) === (post && post.user._id);
 
     return (
@@ -38,7 +48,7 @@ const PostViewerContainer = ({ match, history }) => {
             post={post} 
             loading={loading} 
             error={error}
-            actionButtons={ownPost && <PostActionButtons onEdit={onEdit} />} 
+            actionButtons={ownPost && <PostActionButtons onEdit={onEdit} onRemove={onRemove} />} 
         />
     );
 };
